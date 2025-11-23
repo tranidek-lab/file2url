@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>ALL PAYMENT</title>
+<meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-1:#030305;
+  --glass: rgba(255,255,255,0.03);
+  --muted:#9fb4d6;
+  --g1: #00ff7a;
+  --p1: #9b6bff;
+  --accent-grad: linear-gradient(135deg,var(--g1),var(--p1));
+  --card-grad: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  --radius:16px;
+  --shadow-lg: 0 28px 80px rgba(0,0,0,0.65);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  background:
+    radial-gradient(900px 420px at 8% 10%, rgba(155,107,255,0.04), transparent),
+    radial-gradient(700px 320px at 92% 86%, rgba(0,255,122,0.03), transparent),
+    linear-gradient(180deg,var(--bg-1), #010206 140%);
+  color:#eafff6;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+
+#bgCanvas{ position:fixed; inset:0; z-index:1; pointer-events:none; opacity:0.35; }
+
+#loader{
+  position:fixed; inset:0; z-index:9999; display:flex;align-items:center;justify-content:center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
+  transition: opacity .7s ease, transform .7s ease;
+  backdrop-filter: blur(2px);
+}
+.loaderCard{
+  display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;
+  width:min(980px,94%); padding:26px; border-radius:18px;
+  background: var(--card-grad); border:1px solid rgba(255,255,255,0.02);
+  box-shadow: var(--shadow-lg);
+}
+.lg{
+  width:110px;height:110px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg, rgba(155,107,255,0.06), rgba(0,255,122,0.04));
+  border:1px solid rgba(155,107,255,0.06);
+  position:relative; overflow:hidden;
+}
+.lg .txt{ font-weight:800; font-size:34px; color:var(--g1); text-shadow:0 8px 30px rgba(0,255,122,0.06) }
+.lg .orb{ position:absolute; inset:-30px; filter:blur(30px);
+  background: radial-gradient(circle at 30% 40%, rgba(0,255,122,0.08), transparent 18%),
+             radial-gradient(circle at 70% 70%, rgba(155,107,255,0.06), transparent 22%); animation:orb 3s ease-in-out infinite; }
+@keyframes orb{0%{transform:scale(.96)}50%{transform:scale(1.04)}100%{transform:scale(.96)}}
+
+.titleWrap{min-width:260px}
+.title{
+  font-size:28px; font-weight:800; letter-spacing:1px; position:relative; color:transparent;
+  -webkit-background-clip:text; background:linear-gradient(90deg,var(--g1),var(--p1));
+}
+.titleSmall{ margin-top:8px; color:var(--muted); font-size:13px; opacity:0.95; }
+
+.shimmer{
+  height:8px; width:260px; margin-top:14px; border-radius:999px; overflow:hidden; background: rgba(255,255,255,0.02);
+}
+.shimmer .bar{height:100%; width:0; background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.14)); transition:width .4s cubic-bezier(.2,.9,.2,1)}
+
+.app{ position:relative; z-index:5; width:100%; max-width:520px; display:none; opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+.app.show{ display:block; opacity:1; transform:translateY(0); }
+.card{
+  background: var(--card-grad); border-radius:16px; padding:18px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+
+.header{ display:flex; gap:12px; align-items:center; margin-bottom:8px }
+.brand{ width:56px;height:56px;border-radius:12px;background:var(--accent-grad); display:flex;align-items:center;justify-content:center;font-weight:800;color:#041025 }
+.hTitle{ font-weight:700; color: linear-gradient; font-size:18px }
+.hLead{ color:var(--muted); font-size:13px; }
+
+.qrWrap{ display:flex; gap:14px; align-items:center; justify-content:center; margin-top:10px; flex-wrap:wrap; }
+.qrCard{ width:220px; height:220px; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.02); box-shadow: 0 12px 40px rgba(155,107,255,0.04); background:#060608}
+.qrCard img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.actions{ margin-top:14px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap }
+.ctaPrimary{ padding:12px 16px; border-radius:12px; background: var(--accent-grad); color:#041025; font-weight:800; border:none; cursor:pointer }
+.ctaGhost{ padding:10px 12px; border-radius:12px; background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); cursor:pointer }
+
+.copied {
+  position:relative;
+  animation:pop 420ms ease;
+}
+@keyframes pop{ 0%{transform:scale(.98);opacity:0.8}50%{transform:scale(1.04)}100%{transform:scale(1);opacity:1} }
+
+.note{ margin-top:12px; color:var(--muted); text-align:center; font-size:13px }
+
+.notif{
+  position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(12px);
+  padding:12px 18px; border-radius:12px; background: linear-gradient(90deg, rgba(0,255,122,0.12), rgba(155,107,255,0.06));
+  border:1px solid rgba(155,107,255,0.18); color:#eafff6; font-weight:700; backdrop-filter: blur(8px);
+  box-shadow:0 10px 40px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transition:opacity .28s ease, transform .28s ease; z-index:99999;
+}
+.notif.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+
+@media (max-width:520px){
+  .lg{ width:92px;height:92px }
+  .title{ font-size:20px }
+  .qrCard{ width:160px; height:160px }
+  .loaderCard{ padding:16px; gap:12px }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+<div id="loader" role="status" aria-live="polite">
+  <div class="loaderCard" aria-hidden="false">
+    <div class="lg" aria-hidden="true">
+      <div class="txt">TRA</div>
+      <div class="orb" aria-hidden="true"></div>
+    </div>
+
+    <div class="titleWrap">
+      <div class="title" style="background:linear-gradient(90deg,var(--g1),var(--p1))" data-text="Shaasleep">Shaasleep</div>
+      <div class="titleSmall">ALL PAYMENT — TRAA</div>
+      <div class="shimmer" aria-hidden="true"><div id="shimmerBar" class="bar"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" aria-hidden="true">
+  <div class="card" role="main" aria-label="Payment pl">
+    <div class="header">
+      <div class="brand">TRA</div>
+      <div style="flex:1">
+        <div class="hTitle">ALL PAYMENT TRAA</div>
+        <div class="hLead" style="color:var(--muted)">Scan QR atau ketuk tombol untuk menyalin nomor</div>
+      </div>
+    </div>
+
+    <div class="qrWrap">
+      <div class="qrCard" aria-hidden="false">
+        <img src="https://files.catbox.moe/z9x0ow.jpeg" alt="QR Payment">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="tapCopy" class="ctaPrimary" aria-label="Salin nomor pembayaran">6288213776171</button>
+    
+
+<div id="notif" class="notif" role="status" aria-live="polite"></div>
+
+<script>
+const pCanvas = document.getElementById('bgCanvas');
+const pCtx = pCanvas.getContext('2d');
+function fitCanvas(){ pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+fitCanvas(); window.addEventListener('resize', fitCanvas);
+const particles = [];
+const P_COUNT = Math.max(12, Math.floor(window.innerWidth/120));
+for(let i=0;i<P_COUNT;i++){
+  particles.push({
+    x: Math.random()*pCanvas.width,
+    y: Math.random()*pCanvas.height,
+    r: 6 + Math.random()*18,
+    vx: (Math.random()-0.5)*0.2,
+    vy: (Math.random()-0.5)*0.2,
+    hue: Math.random()
+  });
+}
+function dbg(){
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  for(const p of particles){
+    p.x += p.vx; p.y += p.vy;
+    if(p.x < -50) p.x = pCanvas.width + 50;
+    if(p.x > pCanvas.width + 50) p.x = -50;
+    if(p.y < -50) p.y = pCanvas.height + 50;
+    if(p.y > pCanvas.height + 50) p.y = -50;
+    const g = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*2);
+    g.addColorStop(0, `rgba(0,255,122,${0.06 + p.hue*0.04})`);
+    g.addColorStop(1, `rgba(155,107,255,0)`);
+    pCtx.beginPath();
+    pCtx.fillStyle = g;
+    pCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    pCtx.fill();
+  }
+  requestAnimationFrame(dbg);
+}
+requestAnimationFrame(dbg);
+
+const shimmer = document.getElementById('shimmerBar');
+let sh = 0;
+let shimmerInterval = setInterval(()=> {
+  sh = Math.min(100, sh + (4 + Math.random()*8));
+  shimmer.style.width = sh + '%';
+  if(sh >= 100){
+    clearInterval(shimmerInterval);
+    setTimeout(hideLoader, 600);
+  }
+}, 220);
+
+setTimeout(()=> { if(sh < 100){ sh = 100; shimmer.style.width='100%'; clearInterval(shimmerInterval); setTimeout(hideLoader, 450); } }, 9000);
+
+function hideLoader(){
+  const loader = document.getElementById('loader');
+  loader.style.opacity = '0'; loader.style.transform = 'translateY(-18px)';
+  setTimeout(()=> loader.style.display = 'none', 700);
+  const app = document.getElementById('app'); app.style.display='block';
+  requestAnimationFrame(()=> app.classList.add('show'));
+}
+
+const tap = document.getElementById('tapCopy');
+const notif = document.getElementById('notif');
+let notifTimer = null;
+tap.addEventListener('click', async ()=> {
+  const num = tap.textContent.trim();
+  try {
+    await navigator.clipboard.writeText(num);
+    tap.classList.add('copied');
+    setTimeout(()=> tap.classList.remove('copied'), 420);
+    shownotif('Nomor tersalin: ' + num);
+  } catch(e){
+    shownotif('Gagal menyalin');
+  }
+});
+
+function openSupport(){ window.open('https://t.me/Shaasleep','_blank'); }
+
+function shownotif(msg, ms=2200){
+  clearTimeout(notifTimer);
+  notif.textContent = msg;
+  notif.classList.add('show');
+  notifTimer = setTimeout(()=> notif.classList.remove('show'), ms);
+}
+
+window.addEventListener('keydown', (e)=> { if(e.key === 'Escape'){ clearInterval(shimmerInterval); hideLoader(); } });
+
+</script>
+</body>
+</html>
